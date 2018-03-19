@@ -1,4 +1,5 @@
-FROM nvidia/cuda:7.5-cudnn5-devel
+# Use CUDA 8.0 to avoid issue on newer GPUs
+FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu14.04 
 MAINTAINER answeror <answeror@gmail.com>
 
 RUN echo "deb http://mirrors.zju.edu.cn/ubuntu/ trusty main restricted universe multiverse" > /etc/apt/sources.list && \
@@ -23,7 +24,9 @@ RUN apt-get update && apt-get install -y \
   wget \
   unzip
 RUN git clone --recursive https://github.com/dmlc/mxnet/ && cd mxnet && \
-  git checkout f2684a6 && \
+  git checkout 25720d0 && \
+  git submodule update --init && \
+  git submodule update --recursive && \
   sed -i -e 's/CHECK(ksize_x <= dshape\[3\] && ksize_y <= dshape\[2\])/CHECK(ksize_x <= dshape[3] + 2 * param_.pad[1] \&\& ksize_y <= dshape[2] + 2 * param_.pad[0])/' src/operator/convolution-inl.h && \
   cp make/config.mk . && \
   echo "USE_CUDA=1" >>config.mk && \
