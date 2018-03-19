@@ -12,26 +12,55 @@ Please see <http://zju-capg.org/myo> for details.
 * [Docker](http://docker.io/)
 * [Nvidia Docker](https://github.com/NVIDIA/nvidia-docker)
 
-## Usage
+## Quick Usage
 
 Following commands will
 (1) pull docker image (see `docker/Dockerfile` for details);
 (2) train ConvNets on the training sets of NinaPro DB1, CapgMyo DB-a and CSL-HDEMG, respectively;
 and (3) test trained ConvNets on the test sets.
 
+Navigate to the downloaded version of this repo then run the following commands to use images from Docker Hub
 ```
 mkdir .cache
 # put NinaPro DB1 in .cache/ninapro-db1
 # put CapgMyo DB-a in .cache/dba
 # put CSL-HDEMG in .cache/csl
-docker pull answeror/sigr:2016-09-21
-scripts/trainsrep.sh
-scripts/testsrep.sh
+docker pull lif3line/sigr:latest
+sudo scripts/trainsrep.sh
+sudo scripts/testsrep.sh
 ```
 
+## Building from Source
+
+Alternatively you can rebuild the images from the dockerfiles in this repo:
+```
+mkdir .cache
+# put NinaPro DB1 in .cache/ninapro-db1
+# put CapgMyo DB-a in .cache/dba
+# put CSL-HDEMG in .cache/csl
+cd docker/mxnet
+sudo docker build .
+# Note #ID of image on completion
+cd ..
+```
+Edit the `Dockerfile` in this directory replacing `FROM lif3line/mxnet:latest` with `FROM #ID:latest`
+```
+sudo docker build .
+# Note #ID of this new image
+cd ..
+cd scripts
+```
+Edit `runsrep` replacing `lif3line/sigr:latest` with `#ID:latest`
+```
+cd ..
+sudo scripts/trainsrep.sh
+sudo scripts/testsrep.sh
+```
+
+## Notes
 Training on NinaPro and CapgMyo will take 1 to 2 hours depending on your GPU.
 Training on CSL-HDEMG will take several days.
-You can accelerate traning and testing by distribute different folds on different GPUs with the `gpu` parameter.
+You can accelerate training and testing by distribute different folds on different GPUs with the `gpu` parameter.
 
 The NinaPro DB1 should be segmented according to the gesture labels and stored in Matlab format as follows.
 `.cache/ninapro-db1/data/sss/ggg/sss_ggg_ttt.mat` contains a field `data` (frames x channels) represents the trial `ttt` of gesture `ggg` of subject `sss`.
